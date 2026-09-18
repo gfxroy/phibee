@@ -1,0 +1,45 @@
+name: Desktop builds
+on: [workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-14, macos-15-intel, windows-latest, ubuntu-22.04]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx electron-rebuild -f -w node-pty
+      - run: node scripts/prepare-pty.js
+      - run: npm run build
+      - run: node scripts/package-desktop.js
+      - name: Check native terminal
+        if: runner.os != 'Linux'
+        run: npx electron scripts/native-check.cjs
+      - name: Check native terminal on Linux
+        if: runner.os == 'Linux'
+        run: xvfb-run -a npx electron scripts/native-check.cjs
+      - name: Archive macOS
+        if: runner.os == 'macOS'
+        run: ditto -c -k --sequesterRsrc --keepParent release/Phibee-darwin-*/Phibee.app Phibee-macos-${{ runner.arch }}.zip
+      - name: Package Windows installer
+        if: runner.os == 'Windows'
+        run: npx electron-builder --win nsis --x64 --prepackaged release/Phibee-win32-x64 --config electron-builder.config.cjs --publish never
+      - name: Package Linux AppImage
+        if: runner.os == 'Linux'
+        run: npx electron-builder --linux AppImage --x64 --prepackaged release/Phibee-linux-x64 --config electron-builder.config.cjs --publish never
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Phibee-${{ runner.os }}-${{ runner.arch }}
+          path: |
+            Phibee-*.zip
+            release/installers/*.exe
+            release/installers/*.AppImage
+          if-no-files-found: error

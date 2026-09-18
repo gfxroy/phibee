@@ -1,0 +1,2 @@
+const {app}=require('electron'),pty=require('node-pty');
+app.whenReady().then(()=>{const proc=pty.spawn(process.platform==='win32'?'cmd.exe':'/bin/sh',process.platform==='win32'?['/d','/c','echo phiby-terminal-ok']:['-c','printf phiby-terminal-ok'],{cwd:process.cwd(),env:process.env,cols:80,rows:24});let text='';proc.onData(s=>text+=s);proc.onExit(()=>{if(!text.includes('phiby-terminal-ok')){console.error(text);app.exit(1);}else{console.log('Native terminal passed');app.exit(0);}});setTimeout(()=>app.exit(1),10000).unref();});

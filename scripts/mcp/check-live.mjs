@@ -1,0 +1,11 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import os from 'node:os';
+import {pathToFileURL} from 'node:url';
+const cache=path.join(os.homedir(),'.npm/_npx/af3fac4dd6f7deac/node_modules/@modelcontextprotocol/sdk/dist/esm');
+const {Client}=await import(pathToFileURL(path.join(cache,'client/index.js')));
+const {StdioClientTransport}=await import(pathToFileURL(path.join(cache,'client/stdio.js')));
+const config=JSON.parse(await fs.readFile(path.join(os.homedir(),'.gemini/config/mcp_config.json'),'utf8')).mcpServers[(process.argv.includes('--export')||process.argv.includes('--bundle'))?'align-figma-export':'figma-developer-mcp'];
+const r=JSON.parse(await fs.readFile(path.join(os.homedir(),'Library/Application Support/Align/local/active.json'),'utf8'));const u=new URL(r.project.pages[r.pageIndex].url);const fileKey=u.pathname.split('/')[2],nodeId=u.searchParams.get('node-id').replaceAll('-',':');
+const transport=new StdioClientTransport({command:config.command,args:config.args,env:{...process.env,...config.env},stderr:'pipe'});
+const client=new Client({name:'align-connection-check',version:'1.0.0'});let logs=0;try{await client.connect(transport);transport.stderr?.on('data',()=>logs++);const list=await client.listTools();console.log('Tools:',list.tools.map(t=>t.name).join(', '));const result=await client.callTool({name:(process.argv.includes('--export')||process.argv.includes('--bundle'))?(process.argv.includes('--bundle')?'prepare_design_bundle':'get_screenshot'):'get_figma_design',arguments:{fileKey,nodeId}},undefined,{timeout:120000});await fs.mkdir('test-artifacts',{recursive:true});await fs.writeFile('test-artifacts/figma-live-check.json',JSON.stringify({isError:!!result.isError,contentBlocks:result.content?.length,contentCharacters:JSON.stringify(result.content).length,diagnosticChunks:logs}));console.log(JSON.stringify({isError:!!result.isError,contentCharacters:JSON.stringify(result.content).length,diagnosticChunks:logs}));if(result.isError){const t=result.content?.filter(c=>c.type==='text').map(c=>c.text).join(' ');console.log('Error category:',/401|403|token|auth/i.test(t)?'Figma authentication or access':/429|rate/i.test(t)?'Figma rate limit':'Upstream request failed');process.exitCode=1;}}finally{await client.close();}

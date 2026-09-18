@@ -1,0 +1,41 @@
+{
+  "name": "phibee-desktop",
+  "version": "0.3.0",
+  "private": true,
+  "type": "module",
+  "main": "desktop/main.cjs",
+  "scripts": {
+    "postinstall": "node scripts/prepare-pty.js",
+    "dev": "npm run build && electron .",
+    "start": "electron .",
+    "build": "vite build",
+    "package:mac": "npm run build && node scripts/package-desktop.js",
+    "package:desktop": "npm run build && node scripts/package-desktop.js",
+    "test": "node --test tests/*.test.js",
+    "install:browser": "playwright install chromium"
+  },
+  "dependencies": {
+    "@xterm/addon-fit": "^0.10.0",
+    "@xterm/xterm": "^5.5.0",
+    "express": "^5.1.0",
+    "lucide-react": "^0.468.0",
+    "node-pty": "^1.0.0",
+    "pixelmatch": "^7.1.0",
+    "playwright": "^1.55.0",
+    "pngjs": "^7.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "ws": "^8.18.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@electron/packager": "^20.3.0",
+    "@electron/rebuild": "^4.2.0",
+    "electron": "^44.3.0",
+    "electron-builder": "^26.15.3",
+    "vite": "^6.1.0"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

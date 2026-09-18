@@ -1,0 +1,30 @@
+.download-card a:hover {
+  background: #eef4e1;
+  border-color: #eef4e1;
+}
+
+.download-card .secondary-download {
+  background: transparent;
+  border-color: #505744;
+  color: #dce5cf;
+}
+
+.download-card .secondary-download:hover {
+  background: #303529;
+  border-color: #6b745d;
+}
+
+.download-card.is-detected {
+  border-color: #505744;
+  background: #232720;
+}
+
+.hero-btn-main {
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.hero-btn-main:hover {
+  transform: translateY(-1px);
+}
+

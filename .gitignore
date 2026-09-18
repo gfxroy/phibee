@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Build artifacts & packages
+/dist/
+/release/
+output/
+test-artifacts/
+scratch/
+
+# Local session data & memory
+.align/
+.align-data/
+
+# Environment, secrets & deployment config
+.env
+.env.*
+*.env
+.vercel/
+.openai/
+
+# System & logs
+*.log
+.DS_Store
+Thumbs.db
+*.sample.txt
